@@ -27,7 +27,12 @@ int countTotalItems(const std::array<int,3> &arr)
 }
 int main()
 {
-	std::cout << "hello";
+	std::cout << "bye";
+	for (size_t i = 0; i < 10; i++)
+	{
+		std::cout << "bye";
+	}
+	
 	std::array player{2,5,10};
     return 0;
 	
