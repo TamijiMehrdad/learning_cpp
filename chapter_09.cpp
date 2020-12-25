@@ -27,6 +27,7 @@ int countTotalItems(const std::array<int,3> &arr)
 }
 int main()
 {
+	std::cout << "hello";
 	std::array player{2,5,10};
     return 0;
 }
