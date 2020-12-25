@@ -1,11 +1,9 @@
 .vscode/*
-.vscode/settings.json
-.vscode/tasks.json
-.vscode/launch.json
-.vscode/extensions.json
+*
+!*.cpp
+
 *.code-workspace
-# Local History for Visual Studio Code
-.history/
+
 chapter_09
 # Prerequisites
 *.d
