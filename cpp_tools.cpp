@@ -1,8 +1,21 @@
 
+
+#include <limits>
+#include <random>
+#include <ctime>
+#include <cstdlib>
+#include <string>
+#include <typeinfo>
+#include <array>
+#include <vector>
+#include <string_view>
+#include <numeric> 
+#include <chrono>
+#include "cpp_tools.h"
 #include <iostream>
-#include <cstdint> // for std::int_fast64_t
- 
+
 // note: exp must be non-negative
+
 int_fast64_t powint(int_fast64_t base, int exp)
 {
 	int_fast64_t result{ 1 };
@@ -16,7 +29,6 @@ int_fast64_t powint(int_fast64_t base, int exp)
  
 	return result;
 }
- 
 
 // return true if the difference between a and b is less than absEpsilon, or within relEpsilon percent of the larger of a and b
 bool approximatelyEqualAbsRel(double a, double b)
@@ -32,28 +44,37 @@ bool approximatelyEqualAbsRel(double a, double b)
     return (diff <= (std::max(std::abs(a), std::abs(b)) * relEpsilon));
 }
 
-#include <iostream>
-#include <iterator> 
-#include <algorithm>
-#include <limits>
-#include <random>
-#include <ctime>
-#include <cstdlib>
-#include <string>
-#include <typeinfo>
-#include <array>
-#include <vector>
-#include <string_view>
-#include <numeric> 
-
-namespace MyRandom
+int get_random_number(int min, int max )
 {
-	// Initialize our mersenne twister with a random seed based on the clock (once at system startup)
-	std::mt19937 mersenne{ static_cast<std::mt19937::result_type>(std::time(nullptr)) };
-}
- 
-int getRandomNumber(int min, int max)
-{
+	static std::mt19937 mersenne{ static_cast<std::mt19937::result_type>(std::time(nullptr)) };
 	std::uniform_int_distribution<> die{ min, max }; // we can create a distribution in any function that needs it
-	return die(MyRandom::mersenne); // and then generate a random number from our global generator
+	return die(mersenne); // and then generate a random number from our global generator
+}
+
+std::string get_string_from_user()
+{
+    std::string str{};
+    std::getline(std::cin, str);
+    return str;
+}
+
+int get_int_from_user()
+{
+    int num{0};
+    while (true)
+    {
+        std::cin >> num;
+        if (std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(32767, '\n');
+            std::cout << "you should enter a number:";
+        }
+        else
+        {
+            std::cin.ignore(32767, '\n');
+            break;
+        }
+    }
+    return num;
 }

@@ -1,3 +1,4 @@
+#include "cpp_tools.h"
 #include <iostream>
 #include <iterator> 
 #include <algorithm>
@@ -158,16 +159,18 @@ int get_card_value(const Card &card)
     }
 }
 
-void init(deck_type &deck)
+void init(deck_type &deck, int &num_player)
 {
-    std::cout
     std::mt19937 mt{static_cast<std::mt19937::result_type>(std::time(nullptr))};
     std::shuffle(deck.begin(), deck.end(), mt);
+    std::cout << "Number of player:";
+    num_player = get_int_from_user();
 }
 
 void init_player(deck_type deck)
 {
-    int a {};
+
+    get_random_number(int min, int max );
 }
 
 void init_dealer(deck_type deck)
@@ -181,8 +184,16 @@ int main()
     std::cout << get_card_value(card) << '\n';
     print_card(card);
     deck_type deck{creat_deck()};
-    player_deck_type player_deck{init_player()}
-    init(deck);
+    int num_player{1};
+    init(deck, num_player);
+    std::vector<player_deck_type> players_deck{};
+    players_deck.resize(num_player);
+    for(auto &element:players_deck)
+    {
+        init_player(element);
+    }
+    
+    
     init_player(deck);
     for(auto &element: deck)
     {
