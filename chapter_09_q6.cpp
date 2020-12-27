@@ -45,6 +45,7 @@ struct Card
 {
     Ranks rank{};
     Suits suit{};
+    bool is_available{false};
 };
 
 void print_card(const Card &card)
@@ -129,8 +130,9 @@ deck_type creat_deck()
     {
         for(int rank{0}; rank < max_ranks; ++rank)
         {
-            deck[(suit * 13) + rank].suit = static_cast<Suits>(suit) ;
+            deck[(suit * 13) + rank].suit = static_cast<Suits>(suit);
             deck[(suit * 13) + rank].rank = static_cast<Ranks>(rank);
+            deck[(suit * 13) + rank].is_available = true;
         }
     }
     return deck;
@@ -167,13 +169,27 @@ void init(deck_type &deck, int &num_player)
     num_player = get_int_from_user();
 }
 
-void init_player(deck_type deck)
+std::vector<player_deck_type> init_players(deck_type deck, const int &num_player )
 {
-
-    get_random_number(int min, int max );
+    std::vector<player_deck_type> players_deck{};
+    players_deck.resize(num_player);
+    int indx_deck{0};
+    for(auto &element:players_deck)
+    {
+        element[0].is_available = true;
+        element[0].rank = deck[indx_deck].rank;
+        element[0].suit = deck[indx_deck].suit;
+        ++indx_deck;
+        element[1].is_available = true;
+        element[1].rank = deck[indx_deck].rank;
+        element[1].suit = deck[indx_deck].suit;
+        ++indx_deck;
+    }
+    return players_deck;
+    
 }
 
-void init_dealer(deck_type deck)
+void init_dealer(player_deck_type deck)
 {
     int a {};
 }
@@ -186,15 +202,8 @@ int main()
     deck_type deck{creat_deck()};
     int num_player{1};
     init(deck, num_player);
-    std::vector<player_deck_type> players_deck{};
-    players_deck.resize(num_player);
-    for(auto &element:players_deck)
-    {
-        init_player(element);
-    }
-    
-    
-    init_player(deck);
+    std::vector<player_deck_type> players_deck{init_players( deck, num_player)};
+
     for(auto &element: deck)
     {
         print_card(element);
