@@ -1,4 +1,5 @@
 #include "cpp_tools.h"
+#include "black_jack.h"
 #include <iostream>
 #include <iterator> 
 #include <algorithm>
@@ -11,7 +12,8 @@
 #include <array>
 #include <vector>
 #include <string_view>
-#include <numeric> 
+#include <numeric>
+#include <cassert>
 
 
 enum class Ranks
@@ -122,7 +124,8 @@ void print_card(const Card &card)
 struct Player
 {
     std::array<Card, 11> deck{}; // 11 because at most player can get 11 cards(4 aces + 4 two + 3 three. equal 21)
-    int money{0};
+    int bank{0};
+    int gambling_money{0};
     int value_cards{0};
     bool multi{false};
     bool stand{false};
@@ -177,17 +180,63 @@ void init(deck_type &deck, int &num_player)
 {
     std::mt19937 mt{static_cast<std::mt19937::result_type>(std::time(nullptr))};
     std::shuffle(deck.begin(), deck.end(), mt);
-    std::cout << "Number of player:";
-    num_player = get_int_from_user() ;
+    
+    while(true)
+    {
+        std::cout << "Enter number of players below " << const_play::MAX_NUM_PLAYERS <<":";
+        num_player = get_int_from_user() ;
+        if (num_player < const_play::MAX_NUM_PLAYERS && num_player > 0)
+        {
+            break;
+        }
+        else
+        {
+            std::cout << "Your number is not valid. ";
+        }
+    
+    }
+}
+
+void money_for_play(player_vec &vec, const int &num_player)
+{
+    for(int player_idx{0};auto &element:vec)
+    {
+        if (player_idx < num_player)
+        {
+            while(true)
+            {
+                int gambling_money{get_int_from_user()};
+                std::cout << "You bank is: " << element.bank << "$. Enter how much money you want to play: ";
+                if (gambling_money < element.bank && gambling_money > 0)
+                {
+                    break;
+                }
+                else
+                {
+                    std::cout << "Your number is not valid. ";
+                }
+                element.bank -= gambling_money;
+                element.gambling_money = gambling_money;
+            }
+        }
+        else if (player_idx == num_player) // This is because of setting money of dealer that should be infinitive
+        {
+                element.bank = const_play::DEALER_MONEY;
+                element.gambling_money = const_play::DEALER_MONEY;
+        }
+        ++player_idx;
+    }
 }
 
  player_vec init_players(deck_type deck, const int &num_player )
 {
     player_vec vec{};
     vec.resize(num_player + 1); // we add with one because we have dealer. dealer would be last element of vector.
+
     int indx_deck{0};
     for(auto &element:vec)
     {
+        assert(indx_deck < const_play::NUM_CARDS);
         element.deck[0].is_available = true;
         element.deck[0].rank = deck[indx_deck].rank;
         element.deck[0].suit = deck[indx_deck].suit;
