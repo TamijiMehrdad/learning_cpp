@@ -118,8 +118,20 @@ void print_card(const Card &card)
     std::cout << out << '\n';
 }
 
+
+struct Player
+{
+    std::array<Card, 11> deck{}; // 11 because at most player can get 11 cards(4 aces + 4 two + 3 three. equal 21)
+    int money{0};
+    int value_cards{0};
+    bool multi{false};
+    bool stand{false};
+    bool hit{false};
+    bool insurance{false};
+};
+
 using deck_type = std::array<Card, 52>;
-using player_deck_type = std::array<Card, 11>; // 11 because at most player can get 11 cards(4 aces + 4 two + 3 three. equal 21)
+using player_vec = std::vector<Player>;
 
 deck_type creat_deck()
 {
@@ -166,33 +178,30 @@ void init(deck_type &deck, int &num_player)
     std::mt19937 mt{static_cast<std::mt19937::result_type>(std::time(nullptr))};
     std::shuffle(deck.begin(), deck.end(), mt);
     std::cout << "Number of player:";
-    num_player = get_int_from_user();
+    num_player = get_int_from_user() ;
 }
 
-std::vector<player_deck_type> init_players(deck_type deck, const int &num_player )
+ player_vec init_players(deck_type deck, const int &num_player )
 {
-    std::vector<player_deck_type> players_deck{};
-    players_deck.resize(num_player);
+    player_vec vec{};
+    vec.resize(num_player + 1); // we add with one because we have dealer. dealer would be last element of vector.
     int indx_deck{0};
-    for(auto &element:players_deck)
+    for(auto &element:vec)
     {
-        element[0].is_available = true;
-        element[0].rank = deck[indx_deck].rank;
-        element[0].suit = deck[indx_deck].suit;
+        element.deck[0].is_available = true;
+        element.deck[0].rank = deck[indx_deck].rank;
+        element.deck[0].suit = deck[indx_deck].suit;
         ++indx_deck;
-        element[1].is_available = true;
-        element[1].rank = deck[indx_deck].rank;
-        element[1].suit = deck[indx_deck].suit;
+        element.deck[1].is_available = true;
+        element.deck[1].rank = deck[indx_deck].rank;
+        element.deck[1].suit = deck[indx_deck].suit;
         ++indx_deck;
     }
-    return players_deck;
+    
+    return vec;
     
 }
 
-void init_dealer(player_deck_type deck)
-{
-    int a {};
-}
 
 int main()
 {
@@ -202,7 +211,7 @@ int main()
     deck_type deck{creat_deck()};
     int num_player{1};
     init(deck, num_player);
-    std::vector<player_deck_type> players_deck{init_players( deck, num_player)};
+    player_vec vec{init_players( deck, num_player)};
 
     for(auto &element: deck)
     {
