@@ -1,15 +1,16 @@
-/*
-Pretend you’re writing a game where the player can hold 3 types 
-of items: health potions, torches, and arrows. Create an enum to identify the different types 
-of items, and an std::array to store the number of each item the player is carrying (The enumerators 
-are used as indexes of the array). The player should start with 2 health potions, 5 torches, and 
-10 arrows. Write a function called countTotalItems() that returns how many items the player 
-has in total. Have your main() function print the output of countTotalItems() 
-as well as the number of torches.
-*/
+/**
+ * @file chapter_09_q1.cpp
+ * @author Mehrdad Tamiji (mehrdad.tamiji@gmail.com)
+ * @brief Pretend you’re writing a game where the player can hold 3 types of items: health potions, torches, and arrows. Create an enum to identify the different types of items, and an std::array to store the number of each item the player is carrying (The enumerators are used as indexes of the array). The player should start with 2 health potions, 5 torches, and 10 arrows. Write a function called countTotalItems() that returns how many items the player has in total. Have your main() function print the output of countTotalItems() as well as the number of torches.
+ * @version 0.1
+ * @date 2020-12-26
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 
 #include <iostream>
-#include <iterator> 
+#include <iterator>
 #include <algorithm>
 #include <limits>
 #include <random>
@@ -20,8 +21,7 @@ as well as the number of torches.
 #include <array>
 #include <vector>
 #include <string_view>
-#include <numeric> 
-
+#include <numeric>
 
 enum Items
 {
@@ -31,13 +31,12 @@ enum Items
 	max_item
 };
 
+using inventory_item = std::array<int, max_item>;
+
 int countTotalItems(const inventory_item &arr)
 {
 	return std::reduce(arr.begin(), arr.end());
-
 }
-
-using inventory_item = std::array<int, max_item>;
 
 inventory_item init()
 {
@@ -50,12 +49,10 @@ inventory_item init()
 int main()
 {
 	inventory_item player{init()};
-	
 
 	auto total{countTotalItems(player)};
 
 	std::cout << total << '\n';
 	std::cout << player[item_torches] << '\n';
-    return 0;
-	
+	return 0;
 }
