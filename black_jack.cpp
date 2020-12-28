@@ -102,16 +102,16 @@ std::string print_card(const Card &card)
     switch (card.suit)
     { 
     case (Suits::club) :
-        out += "C";
+        out += "Club";
         break;
     case (Suits::spades) :
-        out += "S";
+        out += "Spades";
         break;
     case (Suits::diamond) :
-        out += "D";
+        out += "Diamond";
         break;
     case (Suits::heart) :
-        out += "H";
+        out += "Heart";
         break;
     default:
         out = "error";
@@ -211,7 +211,7 @@ void name_and_money_of_player(player_vec &vec, const int &num_player)
             {
                 std::cout << element.name << " bank is: " << element.bank << "$. Enter how much money you want to play: ";
                 gambling_money = get_int_from_user();
-                if (gambling_money < element.bank && gambling_money > 0)
+                if (gambling_money <= element.bank && gambling_money > 0)
                 {
                     break;
                 }
@@ -263,6 +263,25 @@ player_vec init_players(deck_type &deck, const int &num_player)
     return vec;
 }
 
+std::string show_info_player(const Player element,const bool &is_dealer)
+{
+    std::string msg{""};
+    msg += element.name;
+    msg += " cards: ";
+    msg += print_card(element.deck[0]);
+    msg += " ";
+    if(!is_dealer)
+    {
+    msg += print_card(element.deck[1]);
+    msg += "\t Gambling money: ";
+    msg += std::to_string(element.gambling_money);
+    }
+    msg += "\t value of cards: ";
+    msg += std::to_string(element.value_cards);
+    msg += "\n";
+    return msg;
+}
+
 void show_players_cards(const deck_type &deck, const player_vec &vec, const int &num_player)
 {
     std::string msg{""};
@@ -271,28 +290,12 @@ void show_players_cards(const deck_type &deck, const player_vec &vec, const int 
         msg = "";
         if (player_idx < num_player)
         {
-            msg += element.name;
-            msg += " cards: ";
-            msg += print_card(element.deck[0]);
-            msg += " ";
-            msg += print_card(element.deck[1]);
-            msg += "\t Gambling money: ";
-            msg += std::to_string(element.gambling_money);
-            msg += "\t value of cards: ";
-            msg += std::to_string(element.value_cards);
-            msg += "\n";
+            msg = show_info_player(element, false);            
             std::cout << msg;
         }
         else if (player_idx == num_player) // This is because of dealer
         {
-            msg += element.name;
-            msg += " card: ";
-            msg += print_card(element.deck[0]);
-            msg += " ";
-            msg += "hiden";
-            msg += "\t value of cards: ";
-            msg += std::to_string(element.value_cards);
-            msg += "\n";
+            msg = show_info_player(element, true);
             std::cout << msg;
         }
         ++player_idx;
@@ -305,7 +308,7 @@ void player_play(deck_type &deck, player_vec &vec, const int &num_player)
     {
         if (player_idx < num_player)
         {
-
+            
         }
         else if (player_idx == num_player) // This is because of dealer
         {
