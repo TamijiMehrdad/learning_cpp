@@ -50,7 +50,7 @@ struct Card
     bool is_available{false};
 };
 
-void print_card(const Card &card)
+std::string print_card(const Card &card)
 {
     std::string out{};
     switch (card.rank)
@@ -117,13 +117,14 @@ void print_card(const Card &card)
         out = "error";
         break;
     }
-    std::cout << out << '\n';
+    return out;
 }
 
 
 struct Player
 {
     std::array<Card, 11> deck{}; // 11 because at most player can get 11 cards(4 aces + 4 two + 3 three. equal 21)
+    std::string name{""};
     int bank{0};
     int gambling_money{0};
     int value_cards{0};
@@ -193,19 +194,21 @@ void init(deck_type &deck, int &num_player)
         {
             std::cout << "Your number is not valid. ";
         }
-    
     }
 }
 
-void money_for_play(player_vec &vec, const int &num_player)
+void name_and_money_of_player(player_vec &vec, const int &num_player)
 {
     for(int player_idx{0};auto &element:vec)
     {
         if (player_idx < num_player)
         {
+            std::cout << "Please insert name of player #" << (player_idx + 1) <<": ";
+            element.name =  get_string_from_user();
+            int gambling_money{0};
             while(true)
             {
-                int gambling_money{get_int_from_user()};
+                gambling_money = get_int_from_user();
                 std::cout << "You bank is: " << element.bank << "$. Enter how much money you want to play: ";
                 if (gambling_money < element.bank && gambling_money > 0)
                 {
@@ -215,42 +218,111 @@ void money_for_play(player_vec &vec, const int &num_player)
                 {
                     std::cout << "Your number is not valid. ";
                 }
-                element.bank -= gambling_money;
-                element.gambling_money = gambling_money;
             }
+            element.bank -= gambling_money;
+            element.gambling_money = gambling_money;
         }
         else if (player_idx == num_player) // This is because of setting money of dealer that should be infinitive
         {
-                element.bank = const_play::DEALER_MONEY;
-                element.gambling_money = const_play::DEALER_MONEY;
+            element.name = "Dealer";
+            element.bank = const_play::DEALER_MONEY;
+            element.gambling_money = const_play::DEALER_MONEY;
         }
         ++player_idx;
     }
 }
 
- player_vec init_players(deck_type deck, const int &num_player )
+player_vec init_players(deck_type &deck, const int &num_player)
 {
     player_vec vec{};
     vec.resize(num_player + 1); // we add with one because we have dealer. dealer would be last element of vector.
-
+    name_and_money_of_player(vec, num_player);
     int indx_deck{0};
-    for(auto &element:vec)
+    for(int player_idx{0}; auto &element:vec)
     {
         assert(indx_deck < const_play::NUM_CARDS);
         element.deck[0].is_available = true;
         element.deck[0].rank = deck[indx_deck].rank;
         element.deck[0].suit = deck[indx_deck].suit;
+        element.value_cards += get_card_value(element.deck[0]);
+        deck[indx_deck].is_available = false;
         ++indx_deck;
         element.deck[1].is_available = true;
         element.deck[1].rank = deck[indx_deck].rank;
         element.deck[1].suit = deck[indx_deck].suit;
+        deck[indx_deck].is_available = false;
+        
+        if (player_idx != num_player) // if it is dealer, we should hide its second card and it's value 
+        {
+            element.value_cards += get_card_value(element.deck[1]);
+        }
         ++indx_deck;
+        ++player_idx;
     }
-    
     return vec;
-    
 }
 
+void show_players_cards(const deck_type &deck, const player_vec &vec, const int &num_player)
+{
+    std::string msg{""};
+    for(int player_idx{0}; auto &element: vec)
+    {
+        msg = "";
+        if (player_idx < num_player)
+        {
+            msg += element.name;
+            msg += " cards: ";
+            msg += print_card(element.deck[0]);
+            msg += " ";
+            msg += print_card(element.deck[1]);
+            msg += "\t Gambling money: ";
+            msg += std::to_string(element.gambling_money);
+            msg += "\t value of cards: ";
+            msg += std::to_string(element.value_cards);
+            msg += "\n";
+            std::cout << msg;
+        }
+        else if (player_idx == num_player) // This is because of dealer
+        {
+            msg += element.name;
+            msg += " card: ";
+            msg += print_card(element.deck[0]);
+            msg += " ";
+            msg += "hiden";
+            msg += "\t value of cards: ";
+            msg += std::to_string(element.value_cards);
+            msg += "\n";
+            std::cout << msg;
+        }
+        ++player_idx;
+    }
+}
+
+void general_play(deck_type &deck, player_vec &vec, const int &num_player)
+{
+    show_players_cards(deck, vec, num_player);
+    for(int player_idx{0}; auto &element: vec)
+    {
+        if (player_idx < num_player)
+        {
+            player_play()
+        }
+        else if (player_idx == num_player) // This is because of dealer
+        {
+
+        }
+        ++player_idx;
+
+    }
+
+
+players_play()
+
+dealer_play()
+finish_play()
+play_again()
+
+}
 
 int main()
 {
@@ -261,6 +333,7 @@ int main()
     int num_player{1};
     init(deck, num_player);
     player_vec vec{init_players( deck, num_player)};
+
 
     for(auto &element: deck)
     {
