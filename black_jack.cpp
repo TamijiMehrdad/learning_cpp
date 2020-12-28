@@ -203,13 +203,14 @@ void name_and_money_of_player(player_vec &vec, const int &num_player)
     {
         if (player_idx < num_player)
         {
+            element.bank = const_play::Player_INIT_MONEY;
             std::cout << "Please insert name of player #" << (player_idx + 1) <<": ";
             element.name =  get_string_from_user();
             int gambling_money{0};
             while(true)
             {
+                std::cout << element.name << " bank is: " << element.bank << "$. Enter how much money you want to play: ";
                 gambling_money = get_int_from_user();
-                std::cout << "You bank is: " << element.bank << "$. Enter how much money you want to play: ";
                 if (gambling_money < element.bank && gambling_money > 0)
                 {
                     break;
@@ -298,47 +299,51 @@ void show_players_cards(const deck_type &deck, const player_vec &vec, const int 
     }
 }
 
-void general_play(deck_type &deck, player_vec &vec, const int &num_player)
+void player_play(deck_type &deck, player_vec &vec, const int &num_player)
 {
-    show_players_cards(deck, vec, num_player);
     for(int player_idx{0}; auto &element: vec)
     {
         if (player_idx < num_player)
         {
-            player_play()
+
         }
         else if (player_idx == num_player) // This is because of dealer
         {
 
         }
         ++player_idx;
-
     }
 
+}
 
-players_play()
-
-dealer_play()
-finish_play()
-play_again()
-
+void general_play(deck_type &deck, player_vec &vec, const int &num_player)
+{
+    show_players_cards(deck, vec, num_player);
+    // for(int player_idx{0}; auto &element: vec)
+    // {
+    //     if (player_idx < num_player)
+    //     {
+    //         player_play(deck, vec, num_player);
+    //     }
+    //     else if (player_idx == num_player) // This is because of dealer
+    //     {
+    //         dealer_play()
+    //     }
+    //     ++player_idx;
+    // }
+    // finish_play()
 }
 
 int main()
 {
-    Card card{Ranks::five, Suits::club};
-    std::cout << get_card_value(card) << '\n';
-    print_card(card);
+    // Card card{Ranks::five, Suits::club};
+    // std::cout << get_card_value(card) << '\n';
+    // print_card(card);
     deck_type deck{creat_deck()};
     int num_player{1};
     init(deck, num_player);
     player_vec vec{init_players( deck, num_player)};
-
-
-    for(auto &element: deck)
-    {
-        print_card(element);
-    }
-
+    general_play(deck, vec, num_player);
+    // play_again();
     return 0;
 }
