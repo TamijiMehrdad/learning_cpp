@@ -125,6 +125,7 @@ enum class Status
     hit,
     stand,
     bust,
+    lost,
     insurance,
     push,
     win,
@@ -419,9 +420,9 @@ void do_play(deck_type &deck, Player &player, int vec_size)
         if(player.value_cards > const_play::BLACK_JACK_NUMB)
             player.status = Status::bust;
         else if(player.value_cards == const_play::BLACK_JACK_NUMB)
-            player.status = Status::stand ;
+            player.status = Status::stand;
         else 
-            player.status = Status::hit ;
+            player.status = Status::hit;
         ++idx_deck;
         break;
     }
@@ -496,21 +497,21 @@ void player_play(deck_type &deck, player_vec &vec, const int &num_player)
     }
 }
 
-void dealer_play(deck_type &deck, Player &player, const int &num_player)
+void dealer_play(deck_type &deck, Player &dealer, const int &num_player)
 {
-    player.value_cards += get_card_value(player.deck[1]);
-    std::cout << show_info_player(player,  false); // false because we want to show second card of dealer.
+    dealer.value_cards += get_card_value(dealer.deck[1]);
+    std::cout << show_info_player(dealer,  false); // false because we want to show second card of dealer.
     bool round_1{true};
-    while (player.value_cards < const_play::DEALER_CEIL)
+    while (dealer.value_cards < const_play::DEALER_CEIL)
     {
         round_1 = false;
-        player.choices.hit = true;
-        player.choices.stand = false;
-        player.move = Player_move::hit;
-        do_play(deck, player, (num_player + 1));
-        if(player.value_cards >= const_play::DEALER_CEIL)
+        dealer.choices.hit = true;
+        dealer.choices.stand = false;
+        dealer.move = Player_move::hit;
+        do_play(deck, dealer, (num_player + 1));
+        if(dealer.value_cards >= const_play::DEALER_CEIL)
         {
-            player.status = Status::stand ;
+            dealer.status = Status::stand ;
         }
     }
 
@@ -522,45 +523,51 @@ void dealer_play(deck_type &deck, Player &player, const int &num_player)
 
 }
 
-void finish_play(player_vec &vec, const int &num_player)
+void win_lost_status(Player &player,const Player &dealer)
 {
-    for(int player_idx{0}; auto &player: vec)
+    if(player.status == Status::bust)
+        player.status = Status::lost;
+
+    if(player.status == Status::stand)
     {
-        if (player_idx < num_player)
+        if(dealer.status == Status::black_jack)
+            player.status = Status::lost;
+        
+        else if (dealer.status == Status::bust)
+            player.status = Status::win;
+        
+        else if (dealer.status == Status::stand)
         {
-            if(player.status == Status::insurance)
-            {
-                player.bank += static_cast<int>(player.gambling_money / 2); // we lose data here because of bank is int rather than double.
-            }
-            if(player.status == Status::stand)
-            {
-                if()
-            }
+            if (dealer.value_cards == player.value_cards)
+                player.status = Status::push;
+            else if (dealer.value_cards > player.value_cards)
+                player.status = Status::lost;
+            else if (dealer.value_cards < player.value_cards)
+                player.status = Status::win;
         }
-        else if (player_idx == num_player) // This is because of dealer
-        {
-            //
-        }
-        ++player_idx;
+    }
+    if (player.status == Status::black_jack)
+    {
+        if (dealer.status == Status::black_jack)
+            player.status = Status::push;
+
+        else if (dealer.status != Status::black_jack)
+            player.status = Status::win;
     }
 }
 
 void accounting(player_vec &vec, const int &num_player)
 {
-            if (player_idx < num_player)
+
+}
+
+void finish_play(player_vec &vec, const Player &dealer, const int &num_player)
+{
+    for(int player_idx{0}; auto &player: vec)
+    {
+        if (player_idx < num_player)
         {
-
-            if(player.status == Status::insurance)
-            {
-                player.bank += static_cast<int>(player.gambling_money / 2); // we lose data here because of bank is int rather than double.
-            }
-                    
-
-
-            if(player.status == Status::stand)
-            {
-                if()
-            }
+            win_lost_status(player, dealer);
         }
         else if (player_idx == num_player) // This is because of dealer
         {
@@ -569,6 +576,8 @@ void accounting(player_vec &vec, const int &num_player)
         ++player_idx;
     }
 }
+
+
 
 int main()
 {
@@ -582,7 +591,7 @@ int main()
     show_players_cards(deck, vec, num_player);
     player_play(deck, vec, num_player);
     dealer_play(deck, vec[vec.size()-1], num_player);
-    finish_play();
+    finish_play(vec, vec[vec.size()-1], num_player);
     accounting();
 
     // play_again();
