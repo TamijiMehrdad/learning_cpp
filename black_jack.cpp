@@ -47,7 +47,7 @@ struct Card
 {
     Ranks rank{};
     Suits suit{};
-    bool is_available{false};
+    bool is_available{true};
 };
 
 std::string print_card(const Card &card)
@@ -122,11 +122,13 @@ std::string print_card(const Card &card)
 
 enum class Status
 {
+    hit,
+    stand,
     bust,
+    insurance,
     push,
     win,
-    stop,
-    playing,
+    black_jack,
     max_status
 };
 
@@ -147,9 +149,12 @@ struct Choices
     bool insurance{false};
 };
 
+using deck_type = std::array<Card, 52>;
+using card_arr = std::array<Card, 11>; // 11 because at most player can get 11 cards(4 aces + 4 two + 3 three. equal 21)
+
 struct Player
 {
-    std::array<Card, 11> deck{}; // 11 because at most player can get 11 cards(4 aces + 4 two + 3 three. equal 21)
+    card_arr deck{}; 
     std::string name{""};
     Choices choices{};
     Player_move move{Player_move::stand};
@@ -159,7 +164,6 @@ struct Player
     int value_cards{0};
 };
 
-using deck_type = std::array<Card, 52>;
 using player_vec = std::vector<Player>;
 
 deck_type creat_deck()
@@ -267,13 +271,13 @@ player_vec init_players(deck_type &deck, const int &num_player)
     for(int player_idx{0}; auto &player:vec)
     {
         assert(indx_deck < const_play::NUM_CARDS);
-        player.deck[0].is_available = true;
+        player.deck[0].is_available = false;
         player.deck[0].rank = deck[indx_deck].rank;
         player.deck[0].suit = deck[indx_deck].suit;
         player.value_cards += get_card_value(player.deck[0]);
         deck[indx_deck].is_available = false;
         ++indx_deck;
-        player.deck[1].is_available = true;
+        player.deck[1].is_available = false;
         player.deck[1].rank = deck[indx_deck].rank;
         player.deck[1].suit = deck[indx_deck].suit;
         deck[indx_deck].is_available = false;
@@ -327,12 +331,13 @@ void show_players_cards(const deck_type &deck, const player_vec &vec, const int 
     }
 }
 
-void player_status(Player &player, Player &dealer, const bool &is_dealer, const bool &round_1)
+void player_choices(Player &player, Player &dealer, const bool &round_1)
 {
-    std::cout << show_info_player(player,  is_dealer);
+    bool is_dealer{false};
     player.choices.hit = true;
     player.choices.stand = true;
-    if(round_1)
+    std::cout << show_info_player(player,  is_dealer);
+    if(round_1 && player.gambling_money < player.bank)
         player.choices.multi = true;
     else
         player.choices.multi = false;
@@ -340,11 +345,12 @@ void player_status(Player &player, Player &dealer, const bool &is_dealer, const 
     if(dealer.deck[0].rank == Ranks::ace && round_1)
         player.choices.insurance = true;
     else
-        player.choices.insurance = true;
+        player.choices.insurance = false;
 }
 
-void print_player_choices(const Player &player)
+void get_player_move(Player &player)
 {
+    char move{};
     std::string msg{(player.name+" can do: \t")};
     if(player.choices.hit)
         msg += "hit(press h)\t";
@@ -355,64 +361,213 @@ void print_player_choices(const Player &player)
     if(player.choices.stand)
         msg += "stand(press s)\t";
     msg += "your choice: ";
-    std::cout << msg;
+
+    while (true)
+    {
+        std::cout << msg;
+        std::cin >> move;
+        if (move == 'h' && player.choices.hit)
+        {
+            player.move = Player_move::hit;
+        }
+        else if(move == 'i' && player.choices.insurance)
+        {
+            player.move = Player_move::insurance;
+        }
+        else if(move == 's' && player.choices.stand)
+        {
+            player.move = Player_move::stand;
+        }
+        else if(move == 'm' && player.choices.multi)
+        {
+        player.move = Player_move::multi;
+        }
+        else
+        {
+            std::cout << "You input is not valid. ";
+        }
+
+    }
+}
+
+Card find_card(const card_arr &arr) 
+{
+    for(auto &card: arr)
+    {
+        if(card.is_available)
+        {
+            return card;
+        }
+    }
+    std::cerr << "error in get_player_move()";
+    exit(0);
+}
+
+void do_play(deck_type &deck, Player &player, int vec_size)
+{
+    static int idx_deck{(2 * vec_size) - 1};
+    switch (player.move)
+    {
+    case Player_move::hit:
+    {
+        Card free_player_card{find_card(player.deck)};
+        free_player_card.rank = deck[idx_deck].rank;  
+        free_player_card.suit = deck[idx_deck].suit;
+        free_player_card.is_available = false;
+        deck[idx_deck].is_available = false;
+        player.value_cards += get_card_value(free_player_card);
+        if(player.value_cards > const_play::BLACK_JACK_NUMB)
+            player.status = Status::bust;
+        else if(player.value_cards == const_play::BLACK_JACK_NUMB)
+            player.status = Status::stand ;
+        else 
+            player.status = Status::hit ;
+        ++idx_deck;
+        break;
+    }
+
+    case Player_move::multi :
+    {
+        Card free_player_card{find_card(player.deck)};
+        free_player_card.rank = deck[idx_deck].rank;  
+        free_player_card.suit = deck[idx_deck].suit;
+        free_player_card.is_available = false;
+        deck[idx_deck].is_available = false;
+        player.value_cards += get_card_value(free_player_card);
+        player.bank -= player.gambling_money;
+        player.gambling_money += player.gambling_money;
+        if(player.value_cards > const_play::BLACK_JACK_NUMB)
+            player.status = Status::bust;
+        else if(player.value_cards <= const_play::BLACK_JACK_NUMB)
+            player.status = Status::stand ; // because it is multi don't have hit optioin anymore
+        ++idx_deck;
+        break;
+    }
+
+    case Player_move::insurance :
+    {
+        player.status = Status::insurance;
+        break;
+    }
+
+    case Player_move::stand :
+    {
+        player.status = Status::stand;
+        break;
+    }
+    
+    default:
+        std::cerr << "error";
+        break;
+    }
+
 }
 
 void player_play(deck_type &deck, player_vec &vec, const int &num_player)
 {
-    bool is_dealer{false};
     for(int player_idx{0}; auto &player: vec)
     {
-        player.status = Status::playing;
+        player.status = Status::hit;
         if (player_idx < num_player)
         {
-            is_dealer = false;
             bool round_1{true};
             while (player.value_cards < const_play::BLACK_JACK_NUMB)
             {
-                player_status(player, vec[vec.size()-1], is_dealer, round_1);
-                print_player_choices();
+                player_choices(player, vec[vec.size()-1], round_1);
                 
+                player.move = Player_move::hit;
+                do_play(deck, player, static_cast<int>(vec.size()));
+                round_1 = false;
+                if(player.status != Status::hit)
+                    break;
             }
 
-            if (player.value_cards==const_play::BLACK_JACK_NUMB) // black jack situation
+            if (player.value_cards==const_play::BLACK_JACK_NUMB && round_1) // black jack situation
             {
-                player.status = Status::stop;
+                player.status = Status::black_jack;
             }
-
-            else
-            {
-                player.status = Status::bust;
-            }
-            
+            assert(player.status != Status::hit);
         }
         else if (player_idx == num_player) // This is because of dealer
         {
-            is_dealer = true;
-            show_info_player(player, is_dealer);
-
+            //
         }
         ++player_idx;
     }
+}
+
+void dealer_play(deck_type &deck, Player &player, const int &num_player)
+{
+    player.value_cards += get_card_value(player.deck[1]);
+    std::cout << show_info_player(player,  false); // false because we want to show second card of dealer.
+    bool round_1{true};
+    while (player.value_cards < const_play::DEALER_CEIL)
+    {
+        round_1 = false;
+        player.choices.hit = true;
+        player.choices.stand = false;
+        player.move = Player_move::hit;
+        do_play(deck, player, (num_player + 1));
+        if(player.value_cards >= const_play::DEALER_CEIL)
+        {
+            player.status = Status::stand ;
+        }
+    }
+
+    if (player.value_cards==const_play::BLACK_JACK_NUMB && round_1) // black jack situation
+    {
+        player.status = Status::black_jack;
+    }
+    assert(player.status != Status::hit);
 
 }
 
-void general_play(deck_type &deck, player_vec &vec, const int &num_player)
+void finish_play(player_vec &vec, const int &num_player)
 {
-    show_players_cards(deck, vec, num_player);
     for(int player_idx{0}; auto &player: vec)
     {
         if (player_idx < num_player)
         {
-            player_play(deck, vec, num_player);
+            if(player.status == Status::insurance)
+            {
+                player.bank += static_cast<int>(player.gambling_money / 2); // we lose data here because of bank is int rather than double.
+            }
+            if(player.status == Status::stand)
+            {
+                if()
+            }
         }
         else if (player_idx == num_player) // This is because of dealer
         {
-            dealer_play()
+            //
         }
         ++player_idx;
     }
-    finish_play()
+}
+
+void accounting(player_vec &vec, const int &num_player)
+{
+            if (player_idx < num_player)
+        {
+
+            if(player.status == Status::insurance)
+            {
+                player.bank += static_cast<int>(player.gambling_money / 2); // we lose data here because of bank is int rather than double.
+            }
+                    
+
+
+            if(player.status == Status::stand)
+            {
+                if()
+            }
+        }
+        else if (player_idx == num_player) // This is because of dealer
+        {
+            //
+        }
+        ++player_idx;
+    }
 }
 
 int main()
@@ -424,7 +579,12 @@ int main()
     int num_player{1};
     init(deck, num_player);
     player_vec vec{init_players( deck, num_player)};
-    general_play(deck, vec, num_player);
+    show_players_cards(deck, vec, num_player);
+    player_play(deck, vec, num_player);
+    dealer_play(deck, vec[vec.size()-1], num_player);
+    finish_play();
+    accounting();
+
     // play_again();
     return 0;
 }
