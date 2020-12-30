@@ -58,6 +58,28 @@ std::string get_string_from_user()
     return str;
 }
 
+char get_char_from_user()
+{
+    char ch{};
+    
+    while (true)
+    {
+        std::cin >> ch;
+        if (std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(32767, '\n');
+            std::cout << "you should enter a number:";
+        }
+        else
+        {
+            std::cin.ignore(32767, '\n');
+            break;
+        }
+    }
+    return ch;
+}
+
 int get_int_from_user()
 {
     int num{0};

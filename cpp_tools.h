@@ -9,5 +9,6 @@ bool approximatelyEqualAbsRel(double a, double b);
 int get_random_number(int min, int max );
 std::string get_string_from_user();
 int get_int_from_user();
+char get_char_from_user();
 
 #endif
