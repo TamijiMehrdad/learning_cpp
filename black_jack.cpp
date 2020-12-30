@@ -242,11 +242,16 @@ void get_cards_value(Player &player)
     player.value_cards = max;
 }
 
-void init(Deck &deck, int &num_player)
+void shuffle_deck(Deck &deck)
 {
-    std::mt19937 mt{static_cast<std::mt19937::result_type>(std::time(nullptr))};
+    static std::mt19937 mt{static_cast<std::mt19937::result_type>(std::time(nullptr))};
     std::shuffle(deck.set.begin(), deck.set.end(), mt);
 
+}
+
+void init(Deck &deck, int &num_player)
+{
+    shuffle_deck(deck);
     while (true)
     {
         std::cout << "Enter number of players below " << const_play::MAX_NUM_PLAYERS << ":";
@@ -258,11 +263,15 @@ void init(Deck &deck, int &num_player)
     }
 }
 
-void get_name_money_player(Player &player, const int player_idx)
+void get_name_player(Player &player, const int player_idx)
 {
     player.bank = const_play::PLAYER_INIT_MONEY;
     std::cout << "Please insert name of player #" << (player_idx + 1) << ": ";
     player.name = get_string_from_user();
+}
+
+void get_money_player(Player &player)
+{
     int gambling_money{0};
     while (true)
     {
@@ -376,7 +385,24 @@ player_vec init_players(Deck &deck, const int &num_player)
     {
         if (player_idx < num_player)
         {
-            get_name_money_player(player, player_idx);
+            get_name_player(player, player_idx);
+        }
+        else if (player_idx == num_player) // This is because of dealer
+        {
+            get_name_money_dealer(player);
+        }
+        ++player_idx;
+    }
+    return vec;
+}
+
+player_vec assign_players_cards(Deck &deck,player_vec &vec, const int &num_player)
+{
+    for (int player_idx{0}; auto &player : vec)
+    {
+        if (player_idx < num_player)
+        {
+            get_money_player(player);
             assign_card(deck, player); // give first card
             assign_card(deck, player); // give second card
             show_info_player(player, false);
@@ -384,7 +410,6 @@ player_vec init_players(Deck &deck, const int &num_player)
         }
         else if (player_idx == num_player) // This is because of dealer
         {
-            get_name_money_dealer(player);
             assign_card(deck, player);       // give first card
             assign_card(deck, player);       // give second card
             show_info_dealer(player, false); // don't show all card and just show first card
@@ -428,7 +453,7 @@ void get_player_move(Player &player)
     while (true)
     {
         std::cout << msg;
-        move = get_char_from_user(); // TODO: should convert a function that handle wrong input. 
+        move = get_char_from_user(); 
 
         if (move == 'h' && player.choices.hit)
         {
@@ -621,7 +646,7 @@ void accounting(Player &player, Player &dealer)
     }
 }
 
-void reset_player(Player &player)
+void reset_player(Player &player, Deck deck)
 {
     player.indx_first = 0;
     player.msg = "";
@@ -635,10 +660,11 @@ void reset_player(Player &player)
     player.status = Status::bust;
     Card_str temp_card_arr;
     player.deck = temp_card_arr;
-    // TODO: reset for deck
+    
+
 }
 
-void finish_play(player_vec &vec, Player &dealer, const int &num_player)
+void finish_play(Deck &deck, player_vec &vec, Player &dealer, const int &num_player)
 {
     for (int player_idx{0}; auto &player : vec)
     {
@@ -648,11 +674,11 @@ void finish_play(player_vec &vec, Player &dealer, const int &num_player)
             accounting(player, dealer);
             print_breakline();
             show_info_player(player, true); // true means show final result
-            reset_player(player);
+            reset_player(player, deck);
         }
         else if (player_idx == num_player) // This is because of dealer
         {
-            //
+            reset_player(player, deck);
         }
         ++player_idx;
     }
@@ -667,9 +693,27 @@ int main()
     int num_player{1};
     init(deck, num_player);
     player_vec vec{init_players(deck, num_player)};
-    player_play(deck, vec, num_player);
-    dealer_play(deck, vec[vec.size() - 1], num_player);
-    finish_play(vec, vec[vec.size() - 1], num_player);
-    // play_again(); // TODO: play again should work
+    while (true)
+    {
+        assign_players_cards(deck, vec, num_player);
+        player_play(deck, vec, num_player);
+        dealer_play(deck, vec[vec.size() - 1], num_player);
+        finish_play(deck, vec, vec[vec.size() - 1], num_player);
+        
+        std::cout << "\n Do you want play again?(y, n) ";
+        char move {get_char_from_user()}; 
+
+        if (move == 'n')
+        {
+            std::cout << "by\n";
+            break;
+        }
+        else if (move == 'y') // TODO: should handle the problem of if money of an user has finished, because if never can come out of loop get money.
+        {
+            deck.indx_first = 0;
+            shuffle_deck(deck);
+            std::cout << "start\n";
+        }
+    }
     return 0;
 }
