@@ -2,11 +2,15 @@
 *
 !*.cpp
 !*.h
+!README.md
+!chapter_9
+!chapter_10
+
 test.cpp
 
 *.code-workspace
 
-chapter_09
+
 # Prerequisites
 *.d
 
