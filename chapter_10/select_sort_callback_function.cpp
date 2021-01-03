@@ -74,7 +74,7 @@ void select_sort(int *arr, const int length, validate_function ptr_fun)
             }
         }
         std::swap(arr[i], arr[best_index]);
-        printArray(arr, 9);
+        // printArray(arr, 9);
     }
 }
 
@@ -84,17 +84,17 @@ int main()
     int array[9]{ 3, 7, 9, 5, 6, 1, 8, 2, 4 };
  
     // Sort the array in descending order using the descending() function
-    // select_sort(array, 9, ascending);
-    // printArray(array, 9);
+    select_sort(array, 9, ascending);
+    printArray(array, 9);
 
-    // select_sort(array, 9, descending);
-    // printArray(array, 9);
+    select_sort(array, 9, descending);
+    printArray(array, 9);
 
     select_sort(array, 9, evenfirst);
     printArray(array, 9);
 
-    // select_sort(array, 9);
-    // printArray(array, 9);
+    select_sort(array, 9);
+    printArray(array, 9);
  
     return 0;
 }
