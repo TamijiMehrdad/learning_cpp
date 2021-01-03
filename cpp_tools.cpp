@@ -13,6 +13,7 @@
 #include <chrono>
 #include "cpp_tools.h"
 #include <iostream>
+#include <chrono>
 
 // note: exp must be non-negative
 
@@ -47,7 +48,7 @@ bool approximatelyEqualAbsRel(double a, double b)
 int get_random_number(int min, int max )
 {
 	static std::mt19937 mersenne{ static_cast<std::mt19937::result_type>(std::time(nullptr)) };
-	std::uniform_int_distribution<> die{ min, max }; // we can create a distribution in any function that needs it
+	static std::uniform_int_distribution<> die{ min, max }; // we can create a distribution in any function that needs it
 	return die(mersenne); // and then generate a random number from our global generator
 }
 
@@ -99,4 +100,19 @@ int get_int_from_user()
         }
     }
     return num;
+}
+void get_duration_function()
+{
+    int length{100000000};
+    int *arr{new (std::nothrow) int[length]{}};
+    auto start{std::chrono::high_resolution_clock::now()};
+    for(std::size_t i{0}; i < length; ++i)
+    {
+        arr[i] = get_random_number(1, 1000000);
+    }
+    auto end{std::chrono::high_resolution_clock::now()};
+    auto duration{std::chrono::duration_cast<std::chrono::milliseconds>(end - start )};
+    std::cout << (duration.count()) << '\n';
+    
+    delete[] arr;
 }
