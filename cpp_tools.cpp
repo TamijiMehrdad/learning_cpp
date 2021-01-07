@@ -1,5 +1,3 @@
-
-
 #include <limits>
 #include <random>
 #include <ctime>
@@ -48,8 +46,7 @@ bool approximatelyEqualAbsRel(double a, double b)
 int get_random_number(int min, int max )
 {
 	static std::mt19937 mersenne{ static_cast<std::mt19937::result_type>(std::time(nullptr)) };
-	static std::uniform_int_distribution<> die{ min, max }; // we can create a distribution in any function that needs it
-	return die(mersenne); // and then generate a random number from our global generator
+	return std::uniform_int_distribution{ min, max }(mersenne);
 }
 
 std::string get_string_from_user()
@@ -101,6 +98,7 @@ int get_int_from_user()
     }
     return num;
 }
+
 void get_duration_function()
 {
     int length{100000000};
