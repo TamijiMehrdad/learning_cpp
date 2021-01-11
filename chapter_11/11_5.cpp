@@ -52,7 +52,44 @@ class B
     B(){std::cout << "B\n";}
 };
 
-int main()
+class Ball
+{
+private:
+    std::string m_color{};
+    double m_radius{};
+
+public:
+    // Ball()
+    // {
+    //     m_color = "black";
+    //     m_radius = 10.0;
+    // }
+
+    // Ball(const std::string &color)
+    // {
+    //     m_color = color;
+    // }
+
+    Ball(const double radius)
+    {
+        m_color = "black";
+        m_radius = radius;
+    }
+
+    Ball(const std::string &color= "black", const double radius=10.5)
+    {
+        m_color = color;
+        m_radius = radius;
+    }
+
+    void print()
+    {
+        std::cout << m_color << ' ' << m_radius << '\n';
+    }
+
+};
+
+void contex()
 {
     Fraction frac;
     std::cout << frac.get_numerator() << "/" << frac.get_denominator() << '\n';
@@ -62,5 +99,25 @@ int main()
     Fraction frac3{};
     Fraction frac4{2,2};
     B b{};
+}
+
+void question()
+{
+    Ball def{};
+	def.print();
+ 
+	Ball blue{ "blue" };
+	blue.print();
+	
+	Ball twenty{ 20.0 };
+	twenty.print();
+	
+	Ball blueTwenty{ "blue", 20.0 };
+	blueTwenty.print();
+}
+int main()
+{
+    contex();
+    question();
     return 0;
 }
