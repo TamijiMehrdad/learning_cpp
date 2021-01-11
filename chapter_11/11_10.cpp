@@ -19,23 +19,23 @@
 #include <cstdarg>
 #include <functional>
 
-class Clac
+class Calc
 {
 private:
     int m_result{0};
 public:
-    Clac():m_result{0}
+    Calc():m_result{0}
     {}
-    Clac &add(int value) {m_result += value; return *this;}
-    Clac &sub(int value) {m_result -= value; return *this;}
-    Clac &multi(int value) {m_result *= value; return *this;}
-    Clac &div(int value) {m_result /= value; return *this;}
+    Calc &add(int value) {m_result += value; return *this;}
+    Calc &sub(int value) {m_result -= value; return *this;}
+    Calc &multi(int value) {m_result *= value; return *this;}
+    Calc &div(int value) {m_result /= value; return *this;}
     int get_val(){return m_result;}
 };
 
 int main()
 {
-    Clac a{};
+    Calc a{};
     std::cout << (a.add(5).multi(4).sub(2).div(3).get_val()) << '\n'; //6
     return 0;
 }
