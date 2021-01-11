@@ -26,21 +26,25 @@ private:
     int m_id;
     std::string m_name;
     int m_income;
-    void generate_id()
-    {
-        m_id = s_id_generator++;
-    }
+    void generate_id();
 public:
-    Employee(std::string name="", double income=0)
-    {
-        generate_id();
-        m_name = name;
-        m_income = income;
-    }
+    Employee(std::string name, double income);
+
     std::string get_name() const {return m_name;}
     double get_income() const {return m_income;}
     int get_id() const {return m_id;}
 };
+void Employee:: generate_id()
+    {
+        m_id = s_id_generator++;
+    }
+
+Employee::Employee(std::string name="", double income=0)
+{
+    generate_id();
+    m_name = name;
+    m_income = income;
+}
 
 int Employee::s_id_generator = 1;
 
