@@ -32,8 +32,8 @@ void Date::set(int year, int month, int day)
     m_day = day;
 }
 
-int main()
-{
-
-    return 0;
-}
+// int main()
+// {
+//     Date date{1,2,3};
+//     return 0;
+// }

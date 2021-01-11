@@ -1,3 +1,4 @@
+#include "cpp_tools.h"
 #include <limits>
 #include <random>
 #include <ctime>
@@ -9,7 +10,6 @@
 #include <string_view>
 #include <numeric> 
 #include <chrono>
-#include "cpp_tools.h"
 #include <iostream>
 #include <chrono>
 
