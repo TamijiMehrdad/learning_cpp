@@ -143,9 +143,6 @@ public:
 		auto roar{ s_roars[static_cast<std::size_t>(get_random_number(0, s_roars.size()-1))] };
         return Monster{monster_t, name, roar, get_random_number(0, 100)};
     }
-
-
-
 };
 
 void question3()
@@ -155,29 +152,17 @@ void question3()
     // Monster skeleton{ Monster::Monster_t::skeleton, "Bones", "*rattle*", 4 };
 }
 
-// ++++++++++++++++++++++++++++++++
-
-// ++++++++++++++++++++++++++++++++
-
-// ================================
-
-
-
-
-
-
+// ++++++++++++++++++++++++++++++++ Question 4
 void question4()
 {
-    
+    //TODO: blackjack code
 }
 
 int main()
 {
-    // question1();
-    // question2();    
+    question1();
+    question2();    
     question3();
     question4();
-
- 
     return 0;
 }
